@@ -25,7 +25,7 @@
       incrementor = 10,
       distance = 3,
       frame,
-      minimum = 10,
+      minimum = 40,
       subtract = document.querySelector('.subtract'),
       add = document.querySelector('.add');
 
