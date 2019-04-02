@@ -63,12 +63,12 @@
     movers = document.querySelectorAll('.mover');
   };
 
-  app.setNegativeDirection = function (element) {
+  var setNegativeDirection = function (element) {
     element.classList.remove('up');
     element.classList.add('down');
   }
 
-  app.setPositiveDirection = function (element) {
+  var setPositiveDirection = function (element) {
     element.classList.remove('down');
     element.classList.add('up');
   }
@@ -84,9 +84,9 @@
         position = position > MAX_HEIGHT ? MAX_HEIGHT : position;
         mover.style.top = position + 'px';
         if (mover.offsetTop === 0) {
-          app.setNegativeDirection(mover);
+          setNegativeDirection(mover);
         } else if (mover.offsetTop === MAX_HEIGHT) {
-          app.setPositiveDirection(mover);
+          setPositiveDirection(mover);
         }
       } else { // use the optimized solution
         position = parseInt(mover.style.top.slice(0, mover.style.top.indexOf('px')));
@@ -95,9 +95,9 @@
         position = position > MAX_HEIGHT ? MAX_HEIGHT : position;
         mover.style.top = position + 'px';
         if (position === 0) {
-          app.setNegativeDirection(mover);
+          setNegativeDirection(mover);
         } else if (position === MAX_HEIGHT) {
-          app.setPositiveDirection(mover);
+          setPositiveDirection(mover);
         }
       }
     }
