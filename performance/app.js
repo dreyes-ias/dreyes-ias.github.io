@@ -20,10 +20,10 @@
       movers,
       bodySize = document.body.getBoundingClientRect(),
       ballSize = proto.getBoundingClientRect(),
-      maxHeight = Math.floor(bodySize.height - ballSize.height),
-      maxWidth = 97, // 100vw - width of square (3vw)
+      MAX_HEIGHT = Math.floor(bodySize.height - ballSize.height),
+      MAX_WIDTH = 97, // 100vw - width of square (3vw)
       incrementor = 10,
-      distance = 3,
+      DISTANCE = 3,
       frame,
       minimum = 40,
       subtract = document.querySelector('.subtract'),
@@ -34,6 +34,9 @@
   app.enableApp = true;
 
   app.init = function () {
+    var mover,
+      top;
+
     if (movers) {
       bodySize = document.body.getBoundingClientRect();
       for (var i = 0; i < movers.length; i++) {
@@ -42,53 +45,59 @@
       document.body.appendChild(proto);
       ballSize = proto.getBoundingClientRect();
       document.body.removeChild(proto);
-      maxHeight = Math.floor(bodySize.height - ballSize.height);
+      MAX_HEIGHT = Math.floor(bodySize.height - ballSize.height);
     }
+
     for (var i = 0; i < app.count; i++) {
-      var m = proto.cloneNode();
-      var top = Math.floor(Math.random() * (maxHeight));
-      if (top === maxHeight) {
-        m.classList.add('up');
+      mover = proto.cloneNode();
+      top = Math.floor(Math.random() * (MAX_HEIGHT));
+      if (top === MAX_HEIGHT) {
+        mover.classList.add('up');
       } else {
-        m.classList.add('down');
+        mover.classList.add('down');
       }
-      m.style.left = (i / (app.count / maxWidth)) + 'vw';
-      m.style.top = top + 'px';
-      document.body.appendChild(m);
+      mover.style.left = (i / (app.count / MAX_WIDTH)) + 'vw';
+      mover.style.top = top + 'px';
+      document.body.appendChild(mover);
     }
     movers = document.querySelectorAll('.mover');
   };
 
+  app.setNegativeDirection = function (element) {
+    element.classList.remove('up');
+    element.classList.add('down');
+  }
+
+  app.setPositiveDirection = function (element) {
+    element.classList.remove('down');
+    element.classList.add('up');
+  }
+
   app.update = function (timestamp) {
+    var position, mover;
     for (var i = 0; i < app.count; i++) {
-      var m = movers[i];
-      if (!app.optimize) {
-        var pos = m.classList.contains('down') ?
-            m.offsetTop + distance : m.offsetTop - distance;
-        if (pos < 0) pos = 0;
-        if (pos > maxHeight) pos = maxHeight;
-        m.style.top = pos + 'px';
-        if (m.offsetTop === 0) {
-          m.classList.remove('up');
-          m.classList.add('down');
+      mover = movers[i];
+      if (!app.optimize) { // unoptimized solution
+        position = mover.classList.contains('down') ?
+            mover.offsetTop + DISTANCE : mover.offsetTop - DISTANCE;
+        position = position < 0 ? 0 : position;
+        position = position > MAX_HEIGHT ? MAX_HEIGHT : position;
+        mover.style.top = position + 'px';
+        if (mover.offsetTop === 0) {
+          app.setNegativeDirection(mover);
+        } else if (mover.offsetTop === MAX_HEIGHT) {
+          app.setPositiveDirection(mover);
         }
-        if (m.offsetTop === maxHeight) {
-          m.classList.remove('down');
-          m.classList.add('up');
-        }
-      } else {
-        var pos = parseInt(m.style.top.slice(0, m.style.top.indexOf('px')));
-        m.classList.contains('down') ? pos += distance : pos -= distance;
-        if (pos < 0) pos = 0;
-        if (pos > maxHeight) pos = maxHeight;
-        m.style.top = pos + 'px';
-        if (pos === 0) {
-          m.classList.remove('up');
-          m.classList.add('down');
-        }
-        if (pos === maxHeight) {
-          m.classList.remove('down');
-          m.classList.add('up');
+      } else { // use the optimized solution
+        position = parseInt(mover.style.top.slice(0, mover.style.top.indexOf('px')));
+        mover.classList.contains('down') ? position += DISTANCE : position -= DISTANCE;
+        position = position < 0 ? 0 : position;
+        position = position > MAX_HEIGHT ? MAX_HEIGHT : position;
+        mover.style.top = position + 'px';
+        if (position === 0) {
+          app.setNegativeDirection(mover);
+        } else if (position === MAX_HEIGHT) {
+          app.setPositiveDirection(mover);
         }
       }
     }
